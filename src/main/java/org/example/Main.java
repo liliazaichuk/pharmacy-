@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello! It is a new project!!!");
+        System.out.println("Hello! It is a new project!");
         System.out.println("Welcome to the Internet Pharmacy!");
 
         Scanner scanner = new Scanner(System.in);
