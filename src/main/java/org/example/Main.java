@@ -4,53 +4,34 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello! It is a new project!");
-        System.out.println("Welcome to the Internet Pharmacy!");
-
         Scanner scanner = new Scanner(System.in);
-
-        PharmacyService pharmacyService = new PharmacyService();
+        PharmacyService service = new PharmacyService();
+        Cart cart = new Cart();
 
         while (true) {
-            System.out.println("\nEnter a command: check (check availability), add (add to cart), order (place order), or exit (exit)");
+            System.out.println("1. Find the nearest pharmacy");
+            System.out.println("2. Place an order");
+            System.out.println("3. Exit");
 
-            String command = scanner.nextLine().trim().toLowerCase();
-
-            switch (command) {
-                case "check":
-                    System.out.print("Enter the name of the medicine: ");
-                    String medicineToCheck = scanner.nextLine().trim();
-                    System.out.print("Enter the quantity: ");
-                    int quantityToCheck = scanner.nextInt();
-                    scanner.nextLine();
-
-                    boolean isAvailable = pharmacyService.checkAvailability(medicineToCheck, quantityToCheck);
-                    System.out.println(isAvailable ? "The medicine is available." : "Insufficient stock.");
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter your coordinates (x y): ");
+                    double x = scanner.nextDouble();
+                    double y = scanner.nextDouble();
+                    // Example: service.findNearestPharmacy
                     break;
 
-                case "add":
-                    System.out.print("Enter the name of the medicine: ");
-                    String medicineToAdd = scanner.nextLine().trim();
-                    System.out.print("Enter the quantity: ");
-                    int quantityToAdd = scanner.nextInt();
-                    scanner.nextLine();
-
-                    String addToCartResult = pharmacyService.addToCart(medicineToAdd, quantityToAdd);
-                    System.out.println(addToCartResult);
+                case 2:
+                    // TODO: Implement cart interaction and order placement
                     break;
 
-                case "order":
-                    String orderResult = pharmacyService.placeOrder();
-                    System.out.println(orderResult);
-                    break;
-
-                case "exit":
-                    System.out.println("Thank you for using the Internet Pharmacy!");
-                    scanner.close();
+                case 3:
+                    System.out.println("Goodbye!");
                     return;
 
                 default:
-                    System.out.println("Unknown command. Please try again.");
+                    System.out.println("Invalid choice. Try again.");
             }
         }
     }
