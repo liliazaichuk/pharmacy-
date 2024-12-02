@@ -15,6 +15,14 @@ public class PharmacyBranch {
         this.inventory = inventory;
     }
 
+    public boolean hasMedicine(String medicine, int quantity) {
+        return inventory.getOrDefault(medicine, 0) >= quantity;
+    }
+
+    public void updateInventory(String medicine, int quantity) {
+        inventory.put(medicine, inventory.get(medicine) - quantity);
+    }
+
     public String getName() {
         return name;
     }
