@@ -3,11 +3,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Cart {
     private Map<String, Integer> cartItems;
+    private static final Logger logger = LogManager.getLogger(PharmacyBranch.class);
     public Cart() {
         this.cartItems = new HashMap<>();
+        logger.info("Кошик створено.");
     }
 
     public void addToCart(String medicine, int quantity, List<PharmacyBranch> branches) {
