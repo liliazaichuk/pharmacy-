@@ -90,7 +90,6 @@ public class Main {
                     System.out.print("Enter your coordinates (X Y): ");
                     double userX = scanner.nextDouble();
                     double userY = scanner.nextDouble();
-                    // Знайти найближчу аптеку, яка має всі необхідні ліки
                     PharmacyBranch nearest = pharmacyService.findNearestPharmacyWithMedicines(userX, userY, branches, cart.getCartItems());
 
                     if (nearest != null) {
