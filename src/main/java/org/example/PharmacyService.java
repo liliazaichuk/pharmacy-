@@ -1,7 +1,5 @@
 package org.example;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,5 +73,68 @@ public class PharmacyService {
             }
         }
         return nearest;
+    }
+    public void updateFileWithOrder(Cart cart, PharmacyBranch pharmacy) {
+        // Створюємо копію оригінального файлу
+        File inputFile = new File("pharmacies.txt");
+        File tempFile = new File("pharmacies_temp.txt");
+
+        try (
+                BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))
+        ) {
+            String line;
+
+            // Проходимо через кожен рядок файлу
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";");
+                String branchName = parts[0];
+
+                // Якщо це аптека, яка обробляє замовлення
+                if (branchName.equalsIgnoreCase(pharmacy.getName())) {
+                    Map<String, Integer> inventory = pharmacy.getInventory();
+
+                    // Зменшуємо кількість ліків на основі замовлення
+                    for (Map.Entry<String, Integer> cartItem : cart.getCartItems().entrySet()) {
+                        String medicine = cartItem.getKey().toLowerCase();
+                        int quantityToRemove = cartItem.getValue();
+
+                        if (inventory.containsKey(medicine)) {
+                            int newQuantity = inventory.get(medicine) - quantityToRemove;
+                            inventory.put(medicine, newQuantity);
+                        }
+                    }
+
+                    // Формуємо оновлений рядок для цієї аптеки
+                    StringBuilder updatedInventory = new StringBuilder();
+                    for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
+                        updatedInventory.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
+                    }
+
+                    // Видаляємо зайву кому в кінці
+                    if (updatedInventory.length() > 0) {
+                        updatedInventory.setLength(updatedInventory.length() - 1);
+                    }
+
+                    // Записуємо оновлену інформацію про аптеку у файл
+                    writer.write(branchName + ";" + parts[1] + ";" + updatedInventory.toString());
+                    writer.newLine();
+                } else {
+                    // Якщо це не потрібна аптека, просто копіюємо рядок
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+
+        } catch (IOException e) {
+        }
+
+        // Замінюємо старий файл новим
+        if (inputFile.delete()) {
+            if (!tempFile.renameTo(inputFile)) {
+            }
+        } else {
+        }
+
     }
 }
