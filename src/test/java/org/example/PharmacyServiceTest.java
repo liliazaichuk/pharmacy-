@@ -1,40 +1,33 @@
 package org.example;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class PharmacyServiceTest {
-    private PharmacyService pharmacyService;
 
-    @BeforeEach
-    void setUp() {
-        pharmacyService = new PharmacyService();
+    @Test
+    void testMockingFileReading() {
+        // Створюємо мок для PharmacyService
+        PharmacyService serviceMock = Mockito.mock(PharmacyService.class);
+
+        // Створюємо тестові дані
+        List<PharmacyBranch> mockedBranches = List.of(
+                new PharmacyBranch("Pharmacy 1", 0.0, 0.0, Map.of("aspirin", 10)),
+                new PharmacyBranch("Pharmacy 2", 1.0, 1.0, Map.of("paracetamol", 5))
+        );
+
+        // Налаштовуємо поведінку мока
+        when(serviceMock.loadPharmaciesFromFile("pharmacies.txt")).thenReturn(mockedBranches);
+
+        // Викликаємо метод і перевіряємо результат
+        List<PharmacyBranch> result = serviceMock.loadPharmaciesFromFile("pharmacies.txt");
+        assertEquals(2, result.size());
+        assertEquals("Pharmacy 1", result.get(0).getName());
     }
-
-    //@Test
-    //void testCheckAvailability() {
-       // assertTrue(pharmacyService.checkAvailability("Paracetamol", 5));
-       // assertFalse(pharmacyService.checkAvailability("Ibuprofen", 20));
-   // }
-
-   // @Test
-    //void testAddToCart() {
-    //    String result = pharmacyService.addToCart("Paracetamol", 5);
-    //    assertEquals("5 units of Paracetamol have been added to the cart.", result);
-
-     //   String resultNotAvailable = pharmacyService.addToCart("Aspirin", 20);
-     //   assertEquals("Unfortunately, there is insufficient stock of Aspirin.", resultNotAvailable);
-    //}
-
-    //@Test
-   // void testPlaceOrder() {
-    //    pharmacyService.addToCart("Paracetamol", 5);
-     //   String result = pharmacyService.placeOrder();
-     //   assertEquals("Your order has been successfully placed!", result);
-
-     //   String resultEmptyCart = pharmacyService.placeOrder();
-      //  assertEquals("Your cart is empty. Add medicines to place an order.", resultEmptyCart);
-    //}
 }

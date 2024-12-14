@@ -3,16 +3,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Getter
+@Data
+@Builder
 public class Cart {
     private Map<String, Integer> cartItems;
     private static final Logger logger = LogManager.getLogger(PharmacyBranch.class);
-    public Cart() {
-        this.cartItems = new HashMap<>();
-        logger.info("Кошик створено.");
-    }
 
     public void addToCart(String medicine, int quantity, List<PharmacyBranch> branches) {
         String normalizedMedicine = medicine.toLowerCase(); // Приводимо назву до нижнього регістру
@@ -52,7 +55,4 @@ public class Cart {
         cartItems.clear();
     }
 
-    public Map<String, Integer> getCartItems() {
-        return cartItems;
-    }
 }

@@ -1,10 +1,17 @@
 package org.example;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@Setter
+@Builder
 public class PharmacyService {
 
     private Map<String, Integer> inventory;
@@ -112,7 +119,7 @@ public class PharmacyService {
                     }
 
                     // Видаляємо зайву кому в кінці
-                    if (updatedInventory.length() > 0) {
+                    if (!updatedInventory.isEmpty()) {
                         updatedInventory.setLength(updatedInventory.length() - 1);
                     }
 
@@ -126,15 +133,16 @@ public class PharmacyService {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (IOException _) {
         }
 
         // Замінюємо старий файл новим
         if (inputFile.delete()) {
             if (!tempFile.renameTo(inputFile)) {
+                System.err.println("Failed to rename temp file.");
             }
         } else {
+            System.err.println("Failed to delete original file.");
         }
-
     }
 }
