@@ -1,3 +1,3 @@
-Pharmacy 1;0.0;0.0;Paracetamol=10,Aspirin=15
+Pharmacy 1;0.0;aspirin:15,paracetamol:8
 Pharmacy 2;2.0;0.0;ibuprofen=4,paracetamol=7
 Pharmacy 3;4.0;1.0;Aspirin=10,Analgin=20
