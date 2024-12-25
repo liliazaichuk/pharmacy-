@@ -1,7 +1,7 @@
 plugins {
     id("java")
+    id ("application")
 }
-
 group = "org.example"
 version = "1.0-SNAPSHOT"
 
@@ -19,6 +19,8 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.5.0") // Інтеграція з JUnit 5
     compileOnly ("org.projectlombok:lombok:1.18.28")
     annotationProcessor ("org.projectlombok:lombok:1.18.28")
+    compileOnly ("org.projectlombok:lombok:1.18.30") // Онови до останньої версії
+    annotationProcessor ("org.projectlombok:lombok:1.18.30")
 }
 
 tasks.test {

@@ -1,7 +1,7 @@
 package org.example;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -9,19 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Getter
-@Setter
-@Builder
 public class PharmacyService {
-
-    private Map<String, Integer> inventory;
-    private Map<String, Integer> cart;
-
+    private static final Logger logger = LogManager.getLogger(PharmacyBranch.class);
     public List<PharmacyBranch> loadPharmaciesFromFile(String fileName) {
         List<PharmacyBranch> branches = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
+            logger.info("Починається завантаження аптек із файлу: {}", fileName);
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(";");
@@ -41,10 +36,11 @@ public class PharmacyService {
 
                 // Додавання аптеки до списку
                 branches.add(new PharmacyBranch(name, xCoordinate, yCoordinate, inventory));
-
+                logger.info("Аптеку {} успішно додано.", name);
             }
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
+            logger.error("Помилка при читанні файлу: {}", e.getMessage());
         }
 
         return branches;
@@ -60,6 +56,7 @@ public class PharmacyService {
                 nearest = branch;
             }
         }
+        logger.info("Найближча аптека: {} (відстань: {}).", nearest != null ? nearest.getName() : "Не знайдено", shortestDistance);
         return nearest;
     }
 
@@ -115,7 +112,7 @@ public class PharmacyService {
                     // Формуємо оновлений рядок для цієї аптеки
                     StringBuilder updatedInventory = new StringBuilder();
                     for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
-                        updatedInventory.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
+                        updatedInventory.append(entry.getKey()).append("=").append(entry.getValue()).append(",");
                     }
 
                     // Видаляємо зайву кому в кінці
@@ -124,7 +121,7 @@ public class PharmacyService {
                     }
 
                     // Записуємо оновлену інформацію про аптеку у файл
-                    writer.write(branchName + ";" + parts[1] + ";" + updatedInventory.toString());
+                    writer.write(branchName + ";" + parts[1] + ";" + parts[2] + ";" + updatedInventory.toString());
                     writer.newLine();
                 } else {
                     // Якщо це не потрібна аптека, просто копіюємо рядок
@@ -133,16 +130,18 @@ public class PharmacyService {
                 }
             }
 
-        } catch (IOException _) {
+        } catch (IOException e) {
+            logger.error("Error updating the file: {}", e.getMessage());
         }
 
         // Замінюємо старий файл новим
         if (inputFile.delete()) {
             if (!tempFile.renameTo(inputFile)) {
-                System.err.println("Failed to rename temp file.");
+                logger.error("Could not rename temp file to original file.");
             }
         } else {
-            System.err.println("Failed to delete original file.");
+            logger.error("Could not delete the original file.");
         }
+        logger.info("Inventory updated successfully for pharmacy: {}", pharmacy.getName());
     }
 }
