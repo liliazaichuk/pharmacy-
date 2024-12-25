@@ -5,10 +5,8 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         PharmacyService pharmacyService = new PharmacyService();
         Cart cart = new Cart();
-
         List<PharmacyBranch> branches = pharmacyService.loadPharmaciesFromFile("pharmacies.txt");
 
         if (branches.isEmpty()) {
@@ -16,102 +14,72 @@ public class Main {
             return;
         }
 
-        while (true) {
-            System.out.println("=== Online Pharmacy ===");
-            System.out.println("1. Find the nearest pharmacy");
-            System.out.println("2. Place an order");
-            System.out.println("3. Exit");
-            System.out.print("Select an option: ");
+        CompositeNode mainMenu = new CompositeNode("Online Pharmacy", true);
 
-            int choice = scanner.nextInt();
-
-            switch (choice) {
-                case 1:
-                    System.out.print("Enter your coordinetes (X Y): ");
-                    double userX = scanner.nextDouble();
-                    double userY = scanner.nextDouble();
-                    PharmacyBranch nearest = pharmacyService.findNearestPharmacy(userX, userY, branches);
-                    if (nearest != null) {
-                        System.out.println("Nearest pharmacy: " + nearest.getName());
-                    } else {
-                        System.out.println("Pharmacy not found.");
-                    }
-                    break;
-
-                case 2:
-                    handleOrder(scanner, cart, pharmacyService, branches);
-                    break;
-
-                case 3:
-                    System.out.println("Thank you for using Pharmacy!");
-                    return;
-
-                default:
-                    System.out.println("Uncorrect choice. Try again.");
+        // Команда: Пошук найближчої аптеки
+        mainMenu.addChild(new LeafNode("Find nearest pharmacy", () -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter your coordinates (X Y): ");
+            double userX = scanner.nextDouble();
+            double userY = scanner.nextDouble();
+            PharmacyBranch nearest = pharmacyService.findNearestPharmacy(userX, userY, branches);
+            if (nearest != null) {
+                System.out.println("Nearest pharmacy: " + nearest.getName());
+            } else {
+                System.out.println("Pharmacy not found.");
             }
-        }
-    }
+        }));
 
-    private static void handleOrder(Scanner scanner, Cart cart, PharmacyService pharmacyService, List<PharmacyBranch> branches) {
-        while (true) {
-            System.out.println("=== Place an order ===");
-            System.out.println("1. Add medicine to cart");
-            System.out.println("2. View cart");
-            System.out.println("3. Clean the cart");
-            System.out.println("4. Delete smth from cart");
-            System.out.println("5. Confirm order");
-            System.out.println("6. Back");
-            System.out.print("Select an option: ");
+        // Підменю для замовлення
+        CompositeNode orderMenu = new CompositeNode("Place an order", false);
 
-            int choice = scanner.nextInt();
+        orderMenu.addChild(new LeafNode("Add medicine to cart", () -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter the name of medicine: ");
+            String medicine = scanner.next();
+            System.out.print("Enter the quantity of medicine: ");
+            int quantity = scanner.nextInt();
+            cart.addToCart(medicine, quantity, branches);
+        }));
 
-            switch (choice) {
-                case 1:
-                    System.out.print("Enter the name of medicine ");
-                    String medicine = scanner.next();
-                    System.out.print("Enter the quantity of medicine ");
-                    int quantity = scanner.nextInt();
-                    cart.addToCart(medicine, quantity, branches);
-                    break;
+        orderMenu.addChild(new LeafNode("View cart", () -> {
+            System.out.println("Cart: " + cart.getCartItems());
+        }));
 
-                case 2:
-                    System.out.println("Cart: " + cart.getCartItems());
-                    break;
+        orderMenu.addChild(new LeafNode("Clear the cart", cart::clearCart));
 
-                case 3:
-                    cart.clearCart();
-                    break;
-                case 4:
-                    System.out.print("Enter the name of medicine you want to delete: ");
-                    medicine = scanner.next();
-                    cart.removeFromCart(medicine);
-                    break;
+        orderMenu.addChild(new LeafNode("Delete medicine from cart", () -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter the name of medicine to delete: ");
+            String medicine = scanner.next();
+            cart.removeFromCart(medicine);
+        }));
 
-                case 5:
-                    System.out.print("Enter your coordinates (X Y): ");
-                    double userX = scanner.nextDouble();
-                    double userY = scanner.nextDouble();
-                    PharmacyBranch nearest = pharmacyService.findNearestPharmacyWithMedicines(userX, userY, branches, cart.getCartItems());
+        orderMenu.addChild(new LeafNode("Confirm order", () -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter your coordinates (X Y): ");
+            double userX = scanner.nextDouble();
+            double userY = scanner.nextDouble();
+            PharmacyBranch nearest = pharmacyService.findNearestPharmacyWithMedicines(userX, userY, branches, cart.getCartItems());
 
-                    if (nearest != null) {
-                        System.out.println("Order can be picked up at the pharmacy: " + nearest.getName());
-
-                        pharmacyService.updateFileWithOrder(cart, nearest);
-
-                        cart.clearCart();
-
-                        System.out.println("Order successfully placed and inventory updated.");
-                    } else {
-                        System.out.println("The order cannot be executed. Either medicines are not available or insufficient stock.");
-                    }
-                    break;
-
-                case 6:
-                    return;
-
-                default:
-                    System.out.println("Uncorrect choice. Try again.");
+            if (nearest != null) {
+                System.out.println("Order can be picked up at the pharmacy: " + nearest.getName());
+                pharmacyService.updateFileWithOrder(cart, nearest);
+                cart.clearCart();
+                System.out.println("Order successfully placed and inventory updated.");
+            } else {
+                System.out.println("The order cannot be executed. Either medicines are not available or insufficient stock.");
             }
+        }));
+
+        mainMenu.addChild(orderMenu);
+
+        // Команда: Вихід
+        mainMenu.addChild(new LeafNode("Exit", () -> System.exit(0)));
+
+        // Запуск головного меню
+        while (true) {
+            mainMenu.execute();
         }
     }
 }
