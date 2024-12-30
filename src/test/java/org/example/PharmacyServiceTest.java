@@ -1,33 +1,76 @@
 package org.example;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-class PharmacyServiceTest {
+public class PharmacyServiceTest {
+    private PharmacyService pharmacyService;
+    private List<PharmacyBranch> branches;
+
+    @BeforeEach
+    public void setUp() {
+        pharmacyService = Mockito.spy(new PharmacyService());
+    }
 
     @Test
-    void testMockingFileReading() {
-        // Створюємо мок для PharmacyService
-        PharmacyService serviceMock = Mockito.mock(PharmacyService.class);
+    public void testFindNearestPharmacy_Success() {
+        PharmacyBranch mockBranch1 = mock(PharmacyBranch.class);
+        PharmacyBranch mockBranch2 = mock(PharmacyBranch.class);
 
-        // Створюємо тестові дані
-        List<PharmacyBranch> mockedBranches = List.of(
-                new PharmacyBranch("Pharmacy 1", 0.0, 0.0, Map.of("aspirin", 10)),
-                new PharmacyBranch("Pharmacy 2", 1.0, 1.0, Map.of("paracetamol", 5))
-        );
+        when(mockBranch1.getXCoordinate()).thenReturn(0.0);
+        when(mockBranch1.getYCoordinate()).thenReturn(0.0);
+        when(mockBranch2.getXCoordinate()).thenReturn(5.0);
+        when(mockBranch2.getYCoordinate()).thenReturn(5.0);
+        when(mockBranch1.getName()).thenReturn("Pharmacy A");
 
-        // Налаштовуємо поведінку мока
-        when(serviceMock.loadPharmaciesFromFile("pharmacies.txt")).thenReturn(mockedBranches);
+        branches = List.of(mockBranch1, mockBranch2);
+        PharmacyBranch nearest = pharmacyService.findNearestPharmacy(1, 1, branches);
 
-        // Викликаємо метод і перевіряємо результат
-        List<PharmacyBranch> result = serviceMock.loadPharmaciesFromFile("pharmacies.txt");
-        assertEquals(2, result.size());
-        assertEquals("Pharmacy 1", result.get(0).getName());
+        assertEquals(mockBranch1, nearest);
+    }
+
+    @Test
+    public void testFindNearestPharmacy_NoPharmacyFound() {
+        branches = List.of();
+        PharmacyBranch nearest = pharmacyService.findNearestPharmacy(1, 1, branches);
+        assertNull(nearest);
+    }
+
+    @Test
+    public void testFindNearestPharmacyWithMedicines_Success() {
+        PharmacyBranch mockBranch = mock(PharmacyBranch.class);
+
+        when(mockBranch.getXCoordinate()).thenReturn(0.0);
+        when(mockBranch.getYCoordinate()).thenReturn(0.0);
+        when(mockBranch.getName()).thenReturn("Pharmacy A");
+        when(mockBranch.hasMedicine(eq("aspirin"), eq(5))).thenReturn(true);
+
+        branches = List.of(mockBranch);
+        Map<String, Integer> cartItems = Map.of("aspirin", 5);
+
+        PharmacyBranch nearest = pharmacyService.findNearestPharmacyWithMedicines(1, 1, branches, cartItems);
+        assertEquals(mockBranch, nearest);
+    }
+
+    @Test
+    public void testFindNearestPharmacyWithMedicines_NoMatch() {
+        PharmacyBranch mockBranch = mock(PharmacyBranch.class);
+
+        when(mockBranch.getXCoordinate()).thenReturn(0.0);
+        when(mockBranch.getYCoordinate()).thenReturn(0.0);
+        when(mockBranch.getName()).thenReturn("Pharmacy A");
+        when(mockBranch.hasMedicine(eq("aspirin"), eq(5))).thenReturn(false);
+
+        branches = List.of(mockBranch);
+        Map<String, Integer> cartItems = Map.of("aspirin", 5);
+
+        PharmacyBranch nearest = pharmacyService.findNearestPharmacyWithMedicines(1, 1, branches, cartItems);
+        assertNull(nearest);
     }
 }
